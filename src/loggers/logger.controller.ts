@@ -18,7 +18,7 @@ export class LoggerController {
     @Body() loggerOnChange:Partial<LoggerType>
   ){
 
-    methodDecorator(param.name,param.name,loggerOnChange)
+    methodDecorator(param.name,loggerOnChange,true)
 
     return this.loggerService.updateLogger(param.name,loggerOnChange)
   }

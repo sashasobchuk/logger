@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { LoggerType } from "../users/users.service";
 import { DataSource } from "typeorm";
-import { Logger } from "../entities";
+import { LoggerEntity } from "../entities";
 
 @Injectable()
 export class LoggerService {
@@ -13,7 +13,7 @@ export class LoggerService {
 
   async updateLogger(name: string, logger: Partial<LoggerType>) {
     return this.connection.createEntityManager()
-      .update(Logger,
+      .update(LoggerEntity,
         {name:name},
     {
       result:logger.result,

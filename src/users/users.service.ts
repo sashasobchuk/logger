@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource, EntityManager } from "typeorm";
-import { User } from "../entities";
+import { DataSource, EntityManager, Logger } from "typeorm";
+import { LoggerEntity, User } from "../entities";
 import * as entities from "../entities";
 import {
   pgHost,
@@ -41,18 +41,27 @@ const sqlSelectQuery = "select * from logger";
 
 
 export type LoggerType = {
-  id: number,
+  // id: number,
   name: string,
+  showName:boolean
   params: boolean,
   result: boolean,
   executionTime: boolean
+  beginTime: boolean
+  endTime: boolean
+  text?: string
 
-  showAny: boolean | undefined
+  // showAny: boolean | undefined
+
+}
+
+function returnMethodDecorators(loggers: LoggerType[]) {
 
 }
 
 function methodDecoratorBuilder(
   // poolParam:pgConfg
+  defaultLogBody: Omit<LoggerType, "showAny" | "id" | "name" | "text">
 ) {
 
   let loggers: LoggerType[] = [];
@@ -68,55 +77,61 @@ function methodDecoratorBuilder(
 
     pool.end();
   });
+  return function methodDecorator(name: string, logBody?: Partial<LoggerType>, update?: boolean) {
+    //todo 111111 зробити щоб створювалось в бд при додаванні (зробити пошук і якшо нема додавання)
 
-  return function methodDecorator(name: string,updateName?:string,updateBody?:Partial<LoggerType>) {
+    console.log(`111111111111111`, loggers);
+    const onDefault = { name, ...defaultLogBody, ...logBody };
+    //@ts-ignore
+    tryInsertLoggerRowToDB({ name, ...defaultLogBody, ...logBody });
 
-    // console.log(loggers);
-    // debugger
     let showAny: boolean = false;
     let dbChecked: boolean = false;
-    if(updateName){
 
+    if (update) {
+      /** if для апдейту*/
+      loggers = loggers.map(logger => logger.name !== name
+        ? logger
+        : { ...logger, ...logBody });
 
-
-      let logger = loggers.find(logger => logger.name === name);
-      loggers = loggers.map(logger=>logger.name !== name
-      ?logger
-      :{...logger,...updateBody})
     }
 
     return function(target, key, descriptor) {
       const originalMethod = descriptor.value;
-
+      // let logger2 = logger
 
       // Перевизначити функцію
       descriptor.value = async function(...args) {
+        let logger: undefined | LoggerType = loggers.find(l => l.name === name);
 
-        // const logger = await  checkLoggerInDB(name)
-
-        const logger = loggers.find(logger => logger.name === name);
-
-        debugger
-        //todo 1111111 тут находить логер далі треба це втикнути в память
-        //далі зробити апдейт
-        // debugger
-
+        if (!!logger.text) {
+          console.log(`custom Text: ${logger.text}`);
+        }
+        if (logger.params) {
+          console.log(`params: ${JSON.stringify(args, null, 2)}`);
+        }
 
         // Запам'ятати час початку виконання
-        // const startTime:Date = new Date();
+        const startTime: Date = new Date();
+        if (logger.beginTime) {
+          console.log(`begin Time: ${startTime.toISOString()}`);
+        }
 
         // Викликати оригінальну функцію
         const result = await originalMethod.apply(this, args);
 
         // Запам'ятати час закінчення виконання
-        // const endTime:Date = new Date();
+        const endTime: Date = new Date();
 
         // Вивести час виконання та результат
-        // console.log(`Час початку: ${startTime.toISOString()}`);
-        if (logger.result) {
-          console.log(`Результат: ${JSON.stringify(result, null, 2)}`);
-        } else {
-          console.log("нема логера");
+        if (logger.endTime) {
+          console.log(`end Time: ${endTime.toISOString()}`);
+        }
+        if (logger.executionTime) {
+          console.log(`execution Time: ${endTime.getTime() - startTime.getTime()}`);
+        }
+        if (logger?.result) {
+          console.log(`result: ${JSON.stringify(result, null, 2)}`);
         }
 
         return result;
@@ -129,7 +144,16 @@ function methodDecoratorBuilder(
 
 }
 
+const defaultLogData: Omit<LoggerType, "showAny" | "id" | "name" | "text"> = {
+  endTime: false,
+  beginTime: false,
+  executionTime: false,
+  params: false,
+  result: false,
+  showName:false
+};
 export const methodDecorator = methodDecoratorBuilder(
+  defaultLogData
   // {
   // database:POSTGRES_DATABASE,
   // host:POSTGRES_HOST,
@@ -148,7 +172,7 @@ export class UsersService {
     this.entityManager = this.connection.createEntityManager();
   }
 
-  @methodDecorator("getUser")
+  @methodDecorator("getUser", { text: "bran",params:true })
   async getUser(id: number) {
     const user = await this.entityManager.findOne(
       User, { where: { id: id } });
@@ -163,78 +187,106 @@ export class UsersService {
 
 async function checkLoggerInDB(name: string): Promise<undefined | Logger> {
 
-  return new Promise<undefined | User>((resolve, reject) => {
+  return new Promise<undefined | Logger>((resolve, reject) => {
     const pool = createPoll();
-    pool.query(`select * from "logger" where "logger".name = $1`, [name], (error, result) => {
-      if (error) {
-        debugger;
-        reject(error);
-      } else {
-        // Resolve the Promise with the result.rows[0]
-        resolve(result.rows[0]);
-      }
-      pool.end();
+    pool.query(`select * from "logger" where "logger".name = $1`, [name],
+      (error, result) => {
+        if (error) {
+          debugger;
+          reject(error);
+        } else {
+          // Resolve the Promise with the result.rows[0]
+          resolve(result.rows[0]);
+        }
+        pool.end();
 
-    });
+      });
   });
 
 }
 
-type Logger = {
-  name: string,
-  params?: boolean,
-  result?: boolean,
-  executionTime?: boolean
-}
+// type Logger = {
+//   name: string,
+//   params?: boolean,
+//   result?: boolean,
+//   executionTime?: boolean
+//   beginTime:boolean,
+//   endTime:boolean,
+//   text?:boolean|null
+// }
 
-async function insertLoggerRowToDB(
+async function tryInsertLoggerRowToDB(
   {
     name,
     params,
     result,
-    executionTime
-  }: Logger) {
+    executionTime, beginTime,
+    endTime,
+    text,
+    showName
+  }: LoggerEntity
+) {
+  // return
+  const pool = createPoll();
+  checkLoggerInDB(name)
+    .then(logger => {
+      if (!logger) {
+        /** якщо нема то створюжмо*/
+        return new Promise<void>((resolve, reject) => {
 
-  const pool = new Pool({
-    type: "postgres",
-    port: POSTGRES_PORT,
-    password: POSTGRES_PASSWORD,
-    username: POSTGRES_USER,
-    database: POSTGRES_DATABASE,
-    host: pgHost,
-    user: pguser
-  });
+          pool.query(`
+  INSERT INTO "logger" ("name", "showName","params", "result",
+   "executionTime","beginTime","endTime","text")
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+`, [name,!!showName,  !!params, !!result, !!executionTime,
+          !!beginTime,!!endTime,text], (error, result) => {
+            if (error) {
+              debugger;
+              console.log(error);
+              reject(error);
+            } else {
+              // Resolve the Promise with the result.rows[0]
+              resolve(result.rows[0]);
+            }
+            pool.end();
 
-  return new Promise<void>((resolve, reject) => {
-    pool.query(`
-  INSERT INTO "logger" ("name", "params", "result", "executionTime")
-  VALUES ($1, $2, $3, $4);
-`, [name, !!params, !!result, !!executionTime], (error, result) => {
-      if (error) {
-        debugger;
-        console.log(error);
-        reject(error);
+          });
+        });
       } else {
-        // Resolve the Promise with the result.rows[0]
-        resolve(result.rows[0]);
+        //todo можна буде продумати в яких випадках обновляти
+        /** якщо є апдейтим його*/
+        return new Promise<void>((resolve, reject) => {
+          debugger
+          pool.query(`
+  update "logger" 
+  set 
+  "params" = $1,
+  "result" = $2,
+  "executionTime" = $3,
+  "beginTime" = $4,
+  "endTime" = $5,
+  "text" = $6,
+  "showName" = $7
+`, [!!params, !!result, !!executionTime
+            , !!beginTime, !!endTime, text,!!showName],
+            (error, result) => {
+            if (error) {
+              debugger;
+              console.log(error);
+              reject(error);
+            } else {
+              debugger
+              // resolve(result.rows[0]);
+            }
+            pool.end();
+
+          });
+        });
+
       }
-      pool.end();
-
     });
-  });
+  return;
 
-  //  pool.query(`
-  //
-  //  INSERT INTO "logger" ("name", "params", "result", "executionTime")
-  //  VALUES (name, !!params, !!result, executionTime);
-  // `,[name], (error, result) => {
-  //    if (error) {
-  //      debugger
-  //    } else {
-  //      return result.rows[0]
-  //    }
-  //    pool.end();
-  //  })
 }
 
 

@@ -10,7 +10,6 @@ export class UsersController {
 
   @Get('/:id')
   async getUser(@Param() param:{id:number}){
-    console.log(`111`,param);
      return  this.userService.getUser(param.id)
   }
 
