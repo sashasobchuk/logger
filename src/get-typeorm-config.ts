@@ -26,7 +26,7 @@ async function getTypeOrmModule(): Promise<DynamicModule> {
       database:POSTGRES_DATABASE,
       entities:  Object.values(entities),
       synchronize: true,
-      logging: true,
+      logging: false,
       host:pgHost,
 
     });
