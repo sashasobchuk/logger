@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { LoggerType } from "../users/users.service";
 import { DataSource } from "typeorm";
 import { LoggerEntity } from "../entities";
+import { LoggerType } from "../logger/types";
 
 @Injectable()
 export class LoggerService {
