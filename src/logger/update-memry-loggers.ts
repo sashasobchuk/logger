@@ -1,21 +1,18 @@
 import { LoggerType } from "./types";
+import { updateLogger } from "./update-logger";
 
-
-export function updateMemoryLoggers (
+export function createNewMemoryLoggers (
   name:string,
   loggers: LoggerType[],
-  logBodyOnChange: Partial<LoggerType>
+  updateFields: Partial<LoggerType>
 ){
   loggers = loggers.map((logger) => {
     if(logger.name ===name){
-      logger = { ...logger, ...logBodyOnChange }
-
+     logger = updateLogger(logger,updateFields)
     }
-    // console.log(logger);
-    return(logger.name !== name
-      ? logger
-      : { ...logger, ...logBodyOnChange }
-  )});
+
+    return logger
+  });
   return loggers
 }
 

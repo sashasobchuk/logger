@@ -1,6 +1,6 @@
 import { LoggerType } from "./types";
 import { tryInsertLoggerRowToDB } from "./try-insert-logger-row-to-DB";
-import { updateMemoryLoggers } from "./update-memry-loggers";
+import { createNewMemoryLoggers } from "./update-memry-loggers";
 import { findLogger } from "./find-logger";
 import { getLoggersFromDb } from "./get-loggers-from-db";
 
@@ -28,7 +28,7 @@ export function methodDecoratorBuilder(defaultLogBody: Omit<LoggerType, "showAny
     if (update) {
       /** if для апдейту в системі*/
       loggersFromDBPromise.then(resLoggers=>{
-        loggers = updateMemoryLoggers(name, loggers, logBodyOnChange);
+        loggers = createNewMemoryLoggers(name, loggers, logBodyOnChange);
       })
       return;
     }
@@ -53,12 +53,6 @@ export function methodDecoratorBuilder(defaultLogBody: Omit<LoggerType, "showAny
             .catch(e => {
               console.log(e);
             })
-            .finally(()=>{
-              // console.log(`лише_раз_на кожну функцію`);
-              // console.log(loggers.length);
-
-            })
-
         })
       }
 

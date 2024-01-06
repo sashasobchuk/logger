@@ -29,10 +29,9 @@ export class LoggerEntity {
   @Column('boolean',{default:false,nullable:false})
   endTime:boolean
 
+
   @Column('varchar',{default:null,nullable:true})
   text:string
-
-
 
 
 

@@ -12,18 +12,18 @@ export class LoggerService {
   }
 
   async updateLogger(name: string, logger: Partial<LoggerType>) {
-    // console.log(`name: `,name);
-    // console.log(`logger `,logger);
     return this.connection.createEntityManager()
       .update(LoggerEntity,
         {name:name},
         logger
       ).catch(e=>{
-        console.log(111,e);
+        console.log(`custom Error`,e);
       })
   }
 
   createLoggerFieldsOnUpdate(bodyOnChange:Partial<LoggerType>){
+    /** забрати поля з undefined*/
+    console.log(`bodyOnChange: `,bodyOnChange)
     let newLoggerOnChange:Partial<LoggerType> = {}
 
     if(typeof bodyOnChange.result !=='undefined'){
