@@ -35,6 +35,7 @@ export const methodDecorator = methodDecoratorBuilder(
 );
 
 
+
 @Injectable()
 export class UsersService {
   entityManager: EntityManager;
@@ -45,7 +46,7 @@ export class UsersService {
 
   @methodDecorator("getUser", { text: "текст з першого",params:false })
   async getUser(id: number) {
-    const user = await this.entityManager.findOne(User, { where: { id: id } });
+    const user = await this.entityManager.findOne(User, { where: { id: id } })
 
     this.secondTestFunction('param1')
 

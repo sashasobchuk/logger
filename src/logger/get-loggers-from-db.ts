@@ -3,7 +3,7 @@ import { LoggerType } from "./types";
 import { LoggerEntity } from "../entities";
 
 
-export function fillMemoryFromDb(loggers:LoggerType[]):Promise<LoggerEntity>{
+export function getLoggersFromDb(loggers:LoggerType[]):Promise<LoggerEntity[]>{
   const pool = createPoll();
 
   return new Promise((resolve, reject) => {
