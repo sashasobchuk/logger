@@ -29,6 +29,8 @@ export class LoggerEntity {
   @Column('boolean',{default:false,nullable:false})
   endTime:boolean
 
+  @Column('boolean',{default:true,nullable:false})
+  changeOnRebuild:boolean
 
   @Column('varchar',{default:null,nullable:true})
   text:string

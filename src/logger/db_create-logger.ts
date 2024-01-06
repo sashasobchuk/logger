@@ -5,19 +5,19 @@ import { LoggerEntity } from "../entities";
 export async function db_createLogger(loggerEntity: LoggerEntity){
   const {name,params,
   result,executionTime,beginTime,endTime,
-  text,showName,id} = loggerEntity
+  text,showName,id,changeOnRebuild} = loggerEntity
   const pool = createPoll();
 
 
  return new Promise(((resolve, reject) => {
    pool.query(`
   INSERT INTO "logger" ("name", "showName","params", "result",
-   "executionTime","beginTime","endTime","text")
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+   "executionTime","beginTime","endTime","text","changeOnRebuild")
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9); 
 `, [name,!!showName,  !!params, !!result, !!executionTime,
-     !!beginTime,!!endTime,text],(error,result)=>{
+     !!beginTime,!!endTime,text,changeOnRebuild],(error,result)=>{
      if (error) {
-       console.log(error);
+       console.log(`db_createLogger`,error);
        reject(error);
      } else {
        resolve(loggerEntity);

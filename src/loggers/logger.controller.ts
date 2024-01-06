@@ -19,9 +19,6 @@ export class LoggerController {
     @Param() param: { name: string },
     @Body() loggerFields: Partial<LoggerType>
   ) {
-    //todo 111 не робиця ріалтайм обновка, лише після перезагрузки чогось виправити
-    // todo зробити щоб можна було обновляти зразу декілька логерів а не один
-
     await methodDecorator(param.name, loggerFields, true);
 
     return this.loggerService.updateLogger(param.name, loggerFields);
@@ -32,6 +29,7 @@ export class LoggerController {
     @Body() loggersFields: Partial<LoggerType>[]
   ) {
     await Promise.all(loggersFields.map(loggerFields => {
+      //todo винести в сервіс
       if (!loggerFields.name) {
         return console.error(`Realtime Dont have name`, loggerFields);
       }
@@ -40,6 +38,7 @@ export class LoggerController {
     }));
 
     await Promise.all(loggersFields.map(loggerFields => {
+      //todo винести в сервіс
       if (!loggerFields.name) {
         return console.error(`DB Dont have name`, loggerFields);
       }

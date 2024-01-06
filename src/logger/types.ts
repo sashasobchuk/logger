@@ -6,6 +6,7 @@ export type LoggerType = {
   executionTime: boolean
   beginTime: boolean
   endTime: boolean
+  changeOnRebuild:boolean
   text?: string
 }
 

@@ -10,7 +10,8 @@ export async function db_updateLogger(
     executionTime, beginTime,
     endTime,
     text,
-    showName
+    showName,
+    changeOnRebuild
   }: LoggerEntity
 ){
   const pool = createPoll();
@@ -25,8 +26,9 @@ export async function db_updateLogger(
      "beginTime" = $4,
      "endTime" = $5,
      "text" = $6,
-     "showName" = $7
-     where "name" = $8
+     "showName" = $7,
+     "changeOnRebuild" = $8
+     where "name" = $9
    `, [
      !!params,
      !!result,
@@ -35,12 +37,13 @@ export async function db_updateLogger(
      !!endTime,
      text,
      !!showName,
-     name
-   ],
+     changeOnRebuild,
+       name
+     ],
      (error, result) => {
        if (error) {
          debugger;
-         console.log(error);
+         console.log(`db_updateLogger`,error);
          reject(error);
        } else {
          resolve(result);

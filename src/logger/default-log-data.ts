@@ -6,7 +6,8 @@ export const defaultLogData: DefaultLogData = {
   executionTime: false,
   params: false,
   result: false,
-  showName:false
+  showName:false,
+  changeOnRebuild:true
 };
 
 
