@@ -18,11 +18,7 @@ export function methodDecoratorBuilder(defaultLogBody: Omit<LoggerType, "showAny
 
 
   return function methodDecorator(name: string, logBodyOnChange?: Partial<LoggerType>, update?: boolean) {
-    //todo 111111 зробити щоб створювалось в бд при додаванні (зробити пошук і якшо нема додавання)
-
-    //todo зробити переключалку changeOnRebuild шоб або оновлялись дані при перезагрузці або ні покищо лише додав в ентеті
-
-
+    //todo 11111111 реалізувати showAny
     let showAny: boolean = false;
     let dbChecked: boolean = false;
     const onDefault = { name, ...defaultLogBody, ...logBodyOnChange };
