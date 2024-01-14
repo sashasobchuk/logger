@@ -1,9 +1,12 @@
 import { Body, Controller, Get, Param, Put, Query } from "@nestjs/common";
 import { LoggerService } from "./logger.service";
-import { methodDecorator } from "../users/users.service";
+// import { methodDecorator } from "../users/users.service";
 import { query } from "express";
-import { LoggerType } from "../logger/types";
-import { updateLogger } from "../logger/update-logger";
+import {defaultLogData, LoggerBodyType, methodDecoratorBuilder} from "../logger-realtime/src";
+import {methodDecorator} from "../users/users.service";
+import {updateLogger} from "../logger-realtime/src/export";
+import {LoggerEntity} from "../entities";
+
 
 
 @Controller("loggers")
@@ -17,7 +20,7 @@ export class LoggerController {
   @Put("/:name")
   async updateLogger(
     @Param() param: { name: string },
-    @Body() loggerFields: Partial<LoggerType>
+    @Body() loggerFields: Partial<LoggerBodyType>
   ) {
     await methodDecorator(param.name, loggerFields, true);
 
@@ -26,7 +29,7 @@ export class LoggerController {
 
   @Put("")
   async updateLoggers(
-    @Body() loggersFields: Partial<LoggerType>[]
+    @Body() loggersFields: Partial<LoggerEntity>[]
   ) {
     await Promise.all(loggersFields.map(loggerFields => {
       //todo винести в сервіс

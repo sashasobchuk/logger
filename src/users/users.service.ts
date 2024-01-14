@@ -1,37 +1,30 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, EntityManager, Logger } from "typeorm";
-import { LoggerEntity, User } from "../entities";
-import { createPoll } from "../logger/create-pooll";
-import { methodDecoratorBuilder } from "../logger/method-decorator-builder";
-import { defaultLogData } from "../logger/default-log-data";
-// import { LoggerType } from "../logger/types";
+import { User } from "../entities";
 
-const { Pool } = require("pg");
-
-
-// const pool = createPoll()
-
-
-type pgConfg = {
-  user: string,
-  host: string,
-  database: string,
-  password: string,
-  port: number
-}
-
-const sqlSelectQuery = "select * from logger";
-
-
-
-// function returnMethodDecorators(loggers: LoggerType[]) {
-//
-// }
+import {defaultLogData, methodDecoratorBuilder} from '../logger-realtime/src'
+import {
+  pgHost,
+  pguser,
+  POSTGRES_DATABASE,
+  POSTGRES_PASSWORD,
+  POSTGRES_PORT,
+  POSTGRES_USER
+} from "../get-typeorm-config";
 
 
 
 export const methodDecorator = methodDecoratorBuilder(
-  defaultLogData
+  defaultLogData,
+    {
+      type:'postgres',
+      port:POSTGRES_PORT,
+      password:POSTGRES_PASSWORD,
+      username:POSTGRES_USER,
+      database:POSTGRES_DATABASE,
+      host:pgHost,
+      user:pguser
+    }
 );
 
 

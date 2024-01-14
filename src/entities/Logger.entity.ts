@@ -35,8 +35,6 @@ export class LoggerEntity {
   @Column('varchar',{default:null,nullable:true})
   text:string
 
-
-
 }
 
 

@@ -1,0 +1,10 @@
+export let POSTGRES_PORT=5432
+export let POSTGRES_USER='postgres'
+export let POSTGRES_PASSWORD='5432'
+export let POSTGRES_DATABASE='sasha'
+export let PORT=3000
+export let MODE='DEV'
+export let RUN_MIGRATIONS=true
+export let pgtype = 'postgres'
+export let pgHost = 'localhost'
+export let pguser= 'postgres'
