@@ -1,0 +1,22 @@
+// import { createPoll } from "./create-poll";
+// import {LoggerEntity} from "./db/LoggerEntity";
+import {createPoll} from "./init";
+import {LoggerEntity} from "./types";
+
+export async function checkLoggerInDB(name: string): Promise<undefined | LoggerEntity> {
+
+  return new Promise<undefined | LoggerEntity>((resolve, reject) => {
+    const pool = createPoll();
+    pool.query(`select * from "logger" where "logger".name = $1`, [name],
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.rows[0]);
+        }
+        pool.end();
+
+      });
+  });
+
+}

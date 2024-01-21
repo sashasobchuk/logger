@@ -45,8 +45,8 @@ export class LoggerController {
       if (!loggerFields.name) {
         return console.error(`DB Dont have name`, loggerFields);
       }
-
-      this.loggerService.updateLogger(loggerFields.name, loggerFields);
+      updateLogger(loggerFields.name,loggerFields)
+      // this.loggerService.updateLogger(loggerFields.name, loggerFields);
     }));
 
 
